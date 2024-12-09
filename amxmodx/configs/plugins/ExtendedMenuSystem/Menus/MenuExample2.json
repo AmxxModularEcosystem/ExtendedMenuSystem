@@ -1,0 +1,17 @@
+{
+    "Command": "example_menu_2",
+    "ChatCommands": [
+        "say /menu2"
+    ],
+    "Title": "Кого вызвать на дуэль?",
+    "Controller": {
+        "Controller": "Players",
+
+        "ExcludeSelf": true,
+        "ExcludeDead": true,
+        "ExcludeTeammates": true,
+
+        "Title": "{i:playerName} \\d#{i:playerIndex}",
+        "Command": "tipa_vyzov_na_duel {i:playerIndex}; say {i:playerName}, вызываю тебя на дуэль!"
+    }
+}

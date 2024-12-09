@@ -1,0 +1,18 @@
+{
+    "Command": "example_menu_3",
+    "ChatCommands": [
+        "say /menu3"
+    ],
+    "Title": "Привет, {m:playerName}!",
+    "Extensions": [
+        "PlayerPlaceholders"
+    ],
+    "Items": [
+        {
+            "Title": "Твой SteamId: {m:playerSteamId}"
+        },
+        {
+            "Title": "Твой индекс: {m:playerIndex}"
+        }
+    ]
+}

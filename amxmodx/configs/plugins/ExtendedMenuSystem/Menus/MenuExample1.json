@@ -1,0 +1,21 @@
+{
+    "Command": "example_menu_1",
+    "ChatCommands": [
+        "say /menu1"
+    ],
+    "Title": [
+        "Заголовок",
+        " Подзаголовок 1",
+        " Подзаголовок 2"
+    ],
+    "Items": [
+        {
+            "Title": "Пункт 1",
+            "Command": "say Я нажал на пункт 1"
+        },
+        {
+            "Title": "Пункт 2",
+            "Command": "say Я нажал на пункт 2"
+        }
+    ]
+}
