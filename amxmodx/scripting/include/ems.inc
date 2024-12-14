@@ -160,7 +160,7 @@ native T_MenuExtension:EMS_MenuExtension_Register(const extensionKey[]);
  * 
  * @note    paramName - Название параметра;
  *          paramType - Название типа параметра;
-*           isParamRequired - Обязателен ли параметр.
+ *          isParamRequired - Обязателен ли параметр.
  * 
  * @note    Пример:
  *              EMS_MenuExtension_AddParams(extension,
@@ -204,7 +204,7 @@ native T_MenuController:EMS_MenuController_Register(const controllerKey[], const
  * 
  * @note    paramName - Название параметра;
  *          paramType - Название типа параметра;
-*           isParamRequired - Обязателен ли параметр.
+ *          isParamRequired - Обязателен ли параметр.
  * 
  * @note    Пример:
  *              EMS_MenuController_AddParams(controller,

@@ -14,6 +14,7 @@ on:
 env:
   PACKAGE_NAME: ExtendedMenuSystem
   PARAMS_CONRTOLLER_TAG: 1.0.0-b4
+  COMMAND_ALIASES_TAG: 1.0.0
 
 jobs:
   build:
@@ -83,6 +84,25 @@ jobs:
           REPO_NAME=`echo "${REPO}" | grep -Po '(?<=\/)\w+'`
           echo "${OUTPUT_VAR_NAME}=$(pwd)/${REPO_NAME}-${TAG}/${INCLUDE_PATH:-amxmodx/scripting/include}" >> $GITHUB_ENV
 
+      - name: Setup ParamsController includes
+        env:
+          REPO: AmxxModularEcosystem/CommandAliases
+          TAG: ${{ env.COMMAND_ALIASES_TAG }}
+          OUTPUT_VAR_NAME: COMMAND_ALIASES_INCLUDE_PATH
+        run: |
+          mkdir -p dep/${REPO}
+          cd dep/${REPO}
+
+          if [ -z "${TAG}" ]; then
+            TAG=`curl --silent https://api.github.com/repos/${REPO}/releases/latest | jq .tag_name -r`
+          fi
+
+          wget https://github.com/${REPO}/archive/refs/tags/${TAG}.zip
+          7z x ${TAG}.zip
+
+          REPO_NAME=`echo "${REPO}" | grep -Po '(?<=\/)\w+'`
+          echo "${OUTPUT_VAR_NAME}=$(pwd)/${REPO_NAME}-${TAG}/${INCLUDE_PATH:-amxmodx/scripting/include}" >> $GITHUB_ENV
+
       - name: Setup AMXXPawn Compiler
         uses: wopox1337/setup-amxxpawn@v1.1.0
         with:
@@ -93,6 +113,7 @@ jobs:
         env:
           REAPI_INCLUDE: ${{ env.REAPI_INCLUDE_PATH }}
           PARAMS_CONRTOLLER_INCLUDE: ${{ env.PARAMS_CONRTOLLER_INCLUDE_PATH }}
+          COMMAND_ALIASES_INCLUDE: ${{ env.COMMAND_ALIASES_INCLUDE_PATH }}
         run: |
           compile() {
             sourcefile=$1
@@ -105,7 +126,8 @@ jobs:
             amxxpc $sourcefile -o"$output_path" \
               -i"include" \
               -i"$REAPI_INCLUDE" \
-              -i"$PARAMS_CONRTOLLER_INCLUDE"
+              -i"$PARAMS_CONRTOLLER_INCLUDE" \
+              -i"$COMMAND_ALIASES_INCLUDE"
           }
           export -f compile
 
