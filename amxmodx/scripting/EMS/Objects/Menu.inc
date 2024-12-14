@@ -7,6 +7,7 @@
 #include <json>
 #include <ems>
 #include <regex>
+#include <CommandAliases>
 #include "EMS/Objects/MenuControllerInstance"
 #include "EMS/Objects/MenuExtensionInstance"
 #include "EMS/Objects/MenuController"
@@ -25,17 +26,27 @@ enum _:S_Menu {
 
 static Array:Menus = Invalid_Array;
 static Trie:MenuCommands = Invalid_Trie;
+static MenuGlobalCommandsHandlerName[64];
 
-Menu_Init() {
+Menu_Init(const menuGlobalCommandsHandlerName[]) {
+    CommandAliases_Init();
+
     Menus = ArrayCreate(S_Menu, 1);
     MenuCommands = TrieCreate();
+    copy(MenuGlobalCommandsHandlerName, charsmax(MenuGlobalCommandsHandlerName), menuGlobalCommandsHandlerName);
 
     MenuController_Init();
     MenuExtension_Init();
 }
 
-Menu_Get(const T_Menu:menu, const menuObject[S_Menu]) {
-    ArrayGetArray(Menus, menu, menuObject);
+Menu_Get(const T_Menu:menu, menuObject[S_Menu]) {
+    ArrayGetArray(Menus, _:menu, menuObject);
+}
+
+T_Menu:Menu_FindByCommand(const command[]) {
+    new T_Menu:menu = Invalid_Menu;
+    TrieGetCell(MenuCommands, command, menu);
+    return menu;
 }
 
 Menu_Build(const playerIndex, const T_Menu:menu) {
@@ -45,10 +56,13 @@ Menu_Build(const playerIndex, const T_Menu:menu) {
     new title[EMS_MENU_TITLE_MAX_LEN];
     Menu_CallMakeTitle(menuObject, title);
 
-    new menuHandler = menu_create(title, "TODO");
-    Menu_CallCreate(menuObject, menu);
+    new menuHandler = menu_create(title, "TODO"); // TODO
+    Menu_CallCreate(menuObject, menuHandler);
 
-    MenuControllerInstance_Use(menuObject[Menu_ControllerInstance], playerIndex, menuHandler);
+    // TODO Посмотреть будут ли такие проблемы на версии 1.10.0. Если нет, то переходить на неё.
+    new controllerInstance[S_MenuControllerInstance];
+    controllerInstance = menuObject[Menu_ControllerInstance];
+    MenuControllerInstance_Use(controllerInstance, playerIndex, menuHandler);
 
     return menuHandler;
 }
@@ -120,18 +134,18 @@ Menu_LoadFromFolder(folderPath[]) {
     close_dir(fileHandler);
 }
 
-Menu_LoadFromFile(const filePath[]) {
+T_Menu:Menu_LoadFromFile(const filePath[]) {
     new JSON:menuJson = json_parse(filePath, true, true);
-    new menuIndex = Menu_LoadFromJson(menuJson);
+    new T_Menu:menuIndex = Menu_LoadFromJson(menuJson);
     json_free(menuJson);
 
     return menuIndex;
 }
 
-Menu_LoadFromJson(const JSON:menuJson) {
+T_Menu:Menu_LoadFromJson(const JSON:menuJson) {
     if (!json_is_object(menuJson)) {
         abort(AMX_ERR_PARAMS, "menuJson is not a json object.");
-        return INVALID_HANDLE;
+        return Invalid_Menu;
     }
 
     new menu[S_Menu];
@@ -139,7 +153,7 @@ Menu_LoadFromJson(const JSON:menuJson) {
     json_object_get_string(menuJson, "Command", menu[Menu_Command], charsmax(menu[Menu_Command]));
     if (menu[Menu_Command][0] == EOS) {
         abort(AMX_ERR_PARAMS, "`Command` field in menu object is empty.");
-        return INVALID_HANDLE;
+        return Invalid_Menu;
     }
 
     JsonObject_ReadMultilineString(menuJson, "Title", menu[Menu_Title], charsmax(menu[Menu_Title]));
@@ -151,12 +165,12 @@ Menu_LoadFromJson(const JSON:menuJson) {
         menu[Menu_ControllerInstance] = JsonObject_iGetMenuControllerInstance(menuJson, "Controller");
     } else {
         abort(AMX_ERR_PARAMS, "Menu object has no `Items` or `Controller` fields.");
-        return INVALID_HANDLE;
+        return Invalid_Menu;
     }
 
-    new menuIndex = ArrayPushArray(Menus, menu);
+    new T_Menu:menuIndex = T_Menu:ArrayPushArray(Menus, menu);
 
-    TrieSetCell(MenuCommands, menu[Menu_Command], menuIndex);
+    Menu_AddCommand(menuIndex, menu[Menu_Command]);
 
     if (json_object_has_value(menuJson, "ChatCommands", JSONArray)) {
         new JSON:chatCommandsJson = json_object_get_value(menuJson, "ChatCommands");
@@ -164,13 +178,19 @@ Menu_LoadFromJson(const JSON:menuJson) {
         for (new i = 0, ii = json_array_get_count(chatCommandsJson); i < ii; ++i) {
             new chatCommand[EMS_MENU_COMMAND_MAX_LEN];
             json_array_get_string(chatCommandsJson, i, chatCommand, charsmax(chatCommand));
-            TrieSetCell(MenuCommands, chatCommand, menuIndex);
+            
+            CommandAliases_Add(chatCommand, menu[Menu_Command]);
         }
 
         json_free(chatCommandsJson);
     }
 
     return menuIndex;
+}
+
+Menu_AddCommand(const T_Menu:menu, const command[]) {
+    TrieSetCell(MenuCommands, command, menu);
+    register_clcmd(command, MenuGlobalCommandsHandlerName);
 }
 
 Menu_MakeEventHandler(const E_MenuEvent:event, const pluginIndex, const callback[]) {

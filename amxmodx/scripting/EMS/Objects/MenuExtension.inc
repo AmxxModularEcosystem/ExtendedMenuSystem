@@ -86,7 +86,7 @@ bool:MenuExtension_CallCreate(const T_MenuExtension:extension, const menu, const
     MenuExtension_Get(extension, extensionObject);
 
     if (extensionObject[MenuExtension_OnMakeTitle] != INVALID_HANDLE) {
-        ExecuteForward(extensionObject[MenuExtension_OnCreate], ret, menu, params);
+        ExecuteForward(extensionObject[MenuExtension_OnCreate], _, menu, params);
     }
 }
 
