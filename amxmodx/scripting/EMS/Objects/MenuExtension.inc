@@ -28,6 +28,38 @@ MenuExtension_Get(const T_MenuExtension:extension, extensionObject[S_MenuExtensi
     ArrayMapGetArray(MenuExtensions, extension, extensionObject);
 }
 
+Trie:MenuExtension_ReadParams(const T_MenuExtension:extension, const JSON:paramsJson) {
+    if (paramsJson == Invalid_JSON) {
+        abort(AMX_ERR_PARAMS, "paramsJson is an invalid json handler (%d).", paramsJson);
+        return Invalid_Trie;
+    }
+
+    new extensionObject[S_MenuExtension];
+    MenuExtension_Get(extension, extensionObject);
+
+    new Trie:params = TrieCreate();
+    if (extensionObject[MenuExtension_Params] != Invalid_Array) {
+        new E_ParamsReadErrorType:errType = ParamsReadError_None;
+        new errParamName[PARAM_KEY_MAX_LEN];
+
+        ParamsController_Param_ReadList(
+            extensionObject[MenuExtension_Params], paramsJson, params,
+            .iErrType = errType,
+            .sErrParamName = errParamName,
+            .iErrParamNameLen = charsmax(errParamName)
+        );
+
+        switch (errType) {
+            case ParamsReadError_RequiredParamNotPresented:
+                abort(AMX_ERR_PARAMS, "Extension '%s' parameter '%s' is required but not presented.", extensionObject[MenuExtension_Key], errParamName);
+            case ParamsReadError_ParamValueIsInvalid:
+                abort(AMX_ERR_PARAMS, "Extension '%s' parameter '%s' has invalid value.", extensionObject[MenuExtension_Key], errParamName);
+        }
+    }
+
+    return params;
+}
+
 T_MenuExtension:MenuExtension_Find(const extensionKey[], const bool:orFail = false) {
     if (!ArrayMapKeyExists(MenuExtensions, extensionKey)) {
         if (orFail) {
@@ -37,7 +69,7 @@ T_MenuExtension:MenuExtension_Find(const extensionKey[], const bool:orFail = fal
         return Invalid_MenuExtension;
     }
 
-    return ArrayMapGetIndex(MenuExtensions, extensionKey);
+    return T_MenuExtension:ArrayMapGetIndex(MenuExtensions, extensionKey);
 }
 
 MenuExtension_CallMakeTitle(const T_MenuExtension:extension, title[], const Trie:params) {

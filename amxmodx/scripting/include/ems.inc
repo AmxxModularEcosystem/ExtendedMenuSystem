@@ -150,7 +150,25 @@ forward EMS_OnLoaded();
 native T_MenuExtension:EMS_MenuExtension_Register(const extensionKey[]);
 
 /**
- * TODO
+ * Добавление параметров для контроллера меню.
+ * 
+ * @param extension Хендлер расширения.
+ * @param any:...   Перечисление параметров.
+ * 
+ * @note    Формат перечисления параметров:
+ *              EMS_MenuExtension_AddParams(..., const paramName[], const paramType[], const bool:isParamRequired, ...);
+ * 
+ * @note    paramName - Название параметра;
+ *          paramType - Название типа параметра;
+*           isParamRequired - Обязателен ли параметр.
+ * 
+ * @note    Пример:
+ *              EMS_MenuExtension_AddParams(extension,
+ *                  "Param1", "String", true,
+ *                  "Param2", "Integer", false
+ *              );
+ * 
+ * @noreturn
  */
 native EMS_MenuExtension_AddParams(const T_MenuExtension:extension, any:...);
 
@@ -176,6 +194,24 @@ native EMS_MenuExtension_RegisterEventHandler(const T_MenuExtension:extension, c
 native T_MenuController:EMS_MenuController_Register(const controllerKey[], const callback[]);
 
 /**
- * TODO
+ * Добавление параметров для контроллера меню.
+ * 
+ * @param controller    Хендлер контроллера.
+ * @param any:...       Перечисление параметров.
+ * 
+ * @note    Формат перечисления параметров:
+ *              EMS_MenuController_AddParams(..., const paramName[], const paramType[], const bool:isParamRequired, ...);
+ * 
+ * @note    paramName - Название параметра;
+ *          paramType - Название типа параметра;
+*           isParamRequired - Обязателен ли параметр.
+ * 
+ * @note    Пример:
+ *              EMS_MenuController_AddParams(controller,
+ *                  "Param1", "String", true,
+ *                  "Param2", "Integer", false
+ *              );
+ * 
+ * @noreturn
  */
-native EMS_MenuController_AddParams(const T_MenuController:extension, any:...);
+native EMS_MenuController_AddParams(const T_MenuController:controller, any:...);

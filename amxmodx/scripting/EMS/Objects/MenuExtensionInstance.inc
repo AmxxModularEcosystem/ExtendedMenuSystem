@@ -34,14 +34,13 @@ MenuExtensionInstance_Make(const T_MenuExtension:extension, const Trie:params) {
         abort(AMX_ERR_PARAMS, "extension is an invalid menu extension handler (%d).", extension);
         return instance;
     }
+    instance[MenuExtensionInstance_MenuExtension] = extension;
 
     if (params == Invalid_Trie) {
-        abort(AMX_ERR_PARAMS, "params is an invalid trie handler (%d).", params);
-        return instance;
+        instance[MenuExtensionInstance_Params] = TrieCreate();
+    } else {
+        instance[MenuExtensionInstance_Params] = params;
     }
-    
-    instance[MenuExtensionInstance_MenuExtension] = extension;
-    instance[MenuExtensionInstance_Params] = params;
 
     return instance;
 }
@@ -50,21 +49,20 @@ MenuExtensionInstance_MakeFromJson(const JSON:extensionJson, instance[S_MenuExte
     if (json_is_string(extensionJson)) {
         new extensionKey[EMS_EXTENSION_KEY_MAX_LEN];
         json_get_string(extensionJson, extensionKey, charsmax(extensionKey));
-
-        new T_MenuExtension:extension = MenuExtension_Find(extensionKey, .orFail = true);
-
-        new JSON:fakeParamsJson = json_init_object();
-        new Trie:params = MenuExtension_ReadParams(extension, fakeParams);
-        json_free(fakeParamsJson);
         
-        return instance = MenuExtensionInstance_Make(extension, params);
+        instance = MenuExtensionInstance_Make(
+            .extension = MenuExtension_Find(extensionKey, .orFail = true),
+            .params = Invalid_Trie
+        );
     } else if (json_is_object(extensionJson)) {
         new extensionKey[EMS_EXTENSION_KEY_MAX_LEN];
-        json_get_string(extensionJson, "Extension", extensionKey, EMS_EXTENSION_KEY_MAX_LEN);
+        json_object_get_string(extensionJson, "Extension", extensionKey, EMS_EXTENSION_KEY_MAX_LEN);
 
         new T_MenuExtension:extension = MenuExtension_Find(extensionKey, .orFail = true);
-
-        return instance = MenuExtensionInstance_Make(extension, MenuExtension_ReadParams(extension, extensionJson));
+        instance = MenuExtensionInstance_Make(
+            .extension = extension,
+            .params = MenuExtension_ReadParams(extension, extensionJson)
+        );
     } else {
         abort(AMX_ERR_PARAMS, "extensionJson is not a json object or string.");
     }
@@ -81,7 +79,7 @@ Array:MenuExtensionInstance_MakeListFromJson(const JSON:extensionsJson) {
     for (new i = 0, ii = json_array_get_count(extensionsJson); i < ii; ++i) {
         new instance[S_MenuExtensionInstance];
         new JSON:extensionJson = json_array_get_value(extensionsJson, i);
-        instance = MenuExtensionInstance_MakeFromJson(extensionJson, instance);
+        MenuExtensionInstance_MakeFromJson(extensionJson, instance);
         json_free(extensionJson);
         ArrayPushArray(instances, instance);
     }

@@ -6,7 +6,7 @@
 #include <amxmodx>
 #include <json>
 
-stock JsonObject_ReadMultilineString(const JSON:jsonObject, const key[], out[], const outLen, const bool:dotNot) {
+stock JsonObject_ReadMultilineString(const JSON:jsonObject, const key[], out[], const outLen, const bool:dotNot = false) {
     new JSON:jsonValue = json_object_get_value(jsonObject, key, dotNot);
     new ret = Json_ReadMultilineString(jsonValue, out, outLen);
     json_free(jsonValue);
@@ -27,7 +27,7 @@ stock Json_ReadArrayAsMultilineString(const JSON:jsonArray, out[], const outLen)
         writtenCellsCount += json_array_get_string(jsonArray, i, out[writtenCellsCount], outLen - writtenCellsCount);
 
         if (i < ii - 1 && outLen - writtenCellsCount >= 1) {
-            out[writtenCellsCount++] = "\n";
+            out[writtenCellsCount++] = '^n';
         }
     }
     

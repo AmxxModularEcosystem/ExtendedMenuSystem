@@ -14,14 +14,25 @@ public plugin_precache() {
     Forwards_Init();
     Menu_Init();
 
-    DefaultObjects_Register();
     Forwards_RegAndCall("EMS_OnInit", ET_IGNORE);
-
-    Menu_LoadFromFolder(CfgUtils_MakePath(EMS_CONFIG_ROOT_DIRECTORY));
+    
+    Menu_LoadFromFolder(CfgUtils_GetPath(EMS_CONFIG_ROOT_DIRECTORY));
 
     Forwards_RegAndCall("EMS_OnLoaded", ET_IGNORE);
 }
 
 public ParamsController_OnRegisterTypes() {
     ParamTypes_Register();
+}
+
+public EMS_OnInit() {
+    DefaultObjects_Register();
+}
+
+#include "EMS/API/MenuController"
+#include "EMS/API/MenuExtension"
+
+public plugin_natives() {
+    API_MenuController_Init();
+    API_MenuExtension_Init();
 }

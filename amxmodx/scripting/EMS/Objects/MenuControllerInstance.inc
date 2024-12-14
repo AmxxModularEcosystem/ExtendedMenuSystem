@@ -1,7 +1,7 @@
-#if defined _ems_src__objects_menu_controller_included
+#if defined _ems_src__objects_menu_controller_instance_included
     #endinput
 #endif
-#define _ems_src__objects_menu_controller_included
+#define _ems_src__objects_menu_controller_instance_included
 
 #include <amxmodx>
 #include <json>
@@ -27,14 +27,13 @@ MenuControllerInstance_Make(const T_MenuController:controller, const Trie:params
         abort(AMX_ERR_PARAMS, "controller is an invalid menu controller handler (%d).", controller);
         return instance;
     }
+    instance[MenuControllerInstance_MenuController] = controller;
 
     if (params == Invalid_Trie) {
-        abort(AMX_ERR_PARAMS, "params is an invalid trie handler (%d).", params);
-        return instance;
+        instance[MenuControllerInstance_Params] = TrieCreate();
+    } else {
+        instance[MenuControllerInstance_Params] = params;
     }
-    
-    instance[MenuControllerInstance_MenuController] = controller;
-    instance[MenuControllerInstance_Params] = params;
 
     return instance;
 }
@@ -53,20 +52,19 @@ MenuControllerInstance_MakeFromJson(const JSON:controllerJson, instance[S_MenuCo
         new controllerKey[EMS_CONTROLLER_KEY_MAX_LEN];
         json_get_string(controllerJson, controllerKey, charsmax(controllerKey));
 
-        new T_MenuController:controller = MenuController_Find(controllerKey, .orFail = true);
-
-        new JSON:fakeParamsJson = json_init_object();
-        new Trie:params = MenuController_ReadParams(controller, fakeParams);
-        json_free(fakeParamsJson);
-        
-        instance = MenuControllerInstance_Make(controller, params);
+        instance = MenuControllerInstance_Make(
+            .controller = MenuController_Find(controllerKey, .orFail = true),
+            .params = Invalid_Trie
+        );
     } else if (json_is_object(controllerJson)) {
         new controllerKey[EMS_CONTROLLER_KEY_MAX_LEN];
-        json_get_string(controllerJson, "Controller", controllerKey, EMS_CONTROLLER_KEY_MAX_LEN);
+        json_object_get_string(controllerJson, "Controller", controllerKey, EMS_CONTROLLER_KEY_MAX_LEN);
 
         new T_MenuController:controller = MenuController_Find(controllerKey, .orFail = true);
-
-        instance = MenuControllerInstance_Make(controller, MenuController_ReadParams(controller, controllerJson));
+        instance = MenuControllerInstance_Make(
+            .controller = controller,
+            .params = MenuController_ReadParams(controller, controllerJson)
+        );
     } else {
         abort(AMX_ERR_PARAMS, "controllerJson is not a json object or string.");
     }
@@ -74,12 +72,24 @@ MenuControllerInstance_MakeFromJson(const JSON:controllerJson, instance[S_MenuCo
 
 JsonObject_GetMenuControllerInstance(const JSON:jsonObject, const key[], instance[S_MenuControllerInstance], const bool:dotNot = false) {
     new JSON:controllerJson = json_object_get_value(jsonObject, key, dotNot);
-    instance = MenuControllerInstance_MakeFromJson(controllerJson);
-    json_free(controllersJson);
+    MenuControllerInstance_MakeFromJson(controllerJson, instance);
+    json_free(controllerJson);
+}
+
+JsonObject_iGetMenuControllerInstance(const JSON:jsonObject, const key[], const bool:dotNot = false) {
+    new instance[S_MenuControllerInstance];
+    JsonObject_GetMenuControllerInstance(jsonObject, key, instance, dotNot);
+    return instance;
 }
 
 JsonObject_GetDefaultMenuControllerInstance(const JSON:jsonObject, const itemsKey[], instance[S_MenuControllerInstance], const bool:dotNot = false) {
     new JSON:itemsJson = json_object_get_value(jsonObject, itemsKey, dotNot);
     MenuControllerInstance_MakeDefaultFromItemsJson(itemsJson, instance);
     json_free(itemsJson);
+}
+
+JsonObject_iGetDefaultMenuControllerInstance(const JSON:jsonObject, const itemsKey[], const bool:dotNot = false) {
+    new instance[S_MenuControllerInstance];
+    JsonObject_GetDefaultMenuControllerInstance(jsonObject, itemsKey, instance, dotNot);
+    return instance;
 }

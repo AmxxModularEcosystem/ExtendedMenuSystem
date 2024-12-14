@@ -11,6 +11,7 @@
 #include "EMS/Objects/MenuExtensionInstance"
 #include "EMS/Objects/MenuController"
 #include "EMS/Objects/MenuExtension"
+#include "EMS/Utils"
 
 enum T_Menu { Invalid_Menu = INVALID_HANDLE }
 
@@ -88,7 +89,7 @@ Menu_CallMakeItem(const menuObject[], title[], command[]) {
     }
 }
 
-Menu_LoadFromFolder(const folderPath[]) {
+Menu_LoadFromFolder(folderPath[]) {
     new filePath[PLATFORM_MAX_PATH], fileHandler, FileType:fileType;
     fileHandler = open_dir(folderPath, filePath, charsmax(filePath), fileType);
     if (!fileHandler) {
@@ -121,7 +122,7 @@ Menu_LoadFromFolder(const folderPath[]) {
 
 Menu_LoadFromFile(const filePath[]) {
     new JSON:menuJson = json_parse(filePath, true, true);
-    Menu_LoadFromJson(menuJson);
+    new menuIndex = Menu_LoadFromJson(menuJson);
     json_free(menuJson);
 
     return menuIndex;
@@ -130,7 +131,7 @@ Menu_LoadFromFile(const filePath[]) {
 Menu_LoadFromJson(const JSON:menuJson) {
     if (!json_is_object(menuJson)) {
         abort(AMX_ERR_PARAMS, "menuJson is not a json object.");
-        return;
+        return INVALID_HANDLE;
     }
 
     new menu[S_Menu];
@@ -138,19 +139,19 @@ Menu_LoadFromJson(const JSON:menuJson) {
     json_object_get_string(menuJson, "Command", menu[Menu_Command], charsmax(menu[Menu_Command]));
     if (menu[Menu_Command][0] == EOS) {
         abort(AMX_ERR_PARAMS, "`Command` field in menu object is empty.");
-        return;
+        return INVALID_HANDLE;
     }
 
     JsonObject_ReadMultilineString(menuJson, "Title", menu[Menu_Title], charsmax(menu[Menu_Title]));
     menu[Menu_ExtensionInstances] = JsonObject_GetMenuExtensionInstances(menuJson, "Extensions");
 
     if (json_object_has_value(menuJson, "Items", JSONArray)) {
-        JsonObject_GetDefaultMenuControllerInstance(menuJson, "Items", menu[Menu_ControllerInstance]);
+        menu[Menu_ControllerInstance] = JsonObject_iGetDefaultMenuControllerInstance(menuJson, "Items");
     } else if (json_object_has_value(menuJson, "Controller")) {
-        JsonObject_GetMenuControllerInstance(menuJson, "Controller", menu[Menu_ControllerInstance]);
+        menu[Menu_ControllerInstance] = JsonObject_iGetMenuControllerInstance(menuJson, "Controller");
     } else {
         abort(AMX_ERR_PARAMS, "Menu object has no `Items` or `Controller` fields.");
-        return;
+        return INVALID_HANDLE;
     }
 
     new menuIndex = ArrayPushArray(Menus, menu);

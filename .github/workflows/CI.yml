@@ -12,8 +12,7 @@ on:
     types: [published]
 
 env:
-  PACKAGE_NAME: CustomWeaponsAPI
-  STORE_READMY: 1
+  PACKAGE_NAME: ExtendedMenuSystem
   PARAMS_CONRTOLLER_TAG: 1.0.0-b4
 
 jobs:
@@ -118,10 +117,7 @@ jobs:
         run: |
           mkdir -p publish/${{ env.PACKAGE_NAME }}/addons
           mv amxmodx/ publish/${{ env.PACKAGE_NAME }}/addons
-
-          if [ ! -z "${STORE_READMY}" ]; then
-            mv README.md publish/
-          fi
+          mv README.md publish/
 
       - name: Deploy artifact
         uses: actions/upload-artifact@v4.3.1

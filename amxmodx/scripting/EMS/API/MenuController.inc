@@ -17,13 +17,13 @@ T_MenuController:@_MenuController_Register(const pluginIndex) {
     get_string(Arg_Key, controllerKey, charsmax(controllerKey));
     get_string(Arg_Callback, controllerCallback, charsmax(controllerCallback));
 
-    return MenuController_Register(controllerKey, MenuController_MakeCallback(pluginIndex, controllerCallback));
+    return MenuController_Construct(controllerKey, MenuController_MakeCallback(pluginIndex, controllerCallback));
 }
 
 @_MenuController_AddParams(const pluginIndex, const paramsCount) {
     enum {Arg_Controller = 1, Arg_Params};
     
-    new T_MenuController:controller = get_param(Arg_Controller);
+    new T_MenuController:controller = T_MenuController:get_param(Arg_Controller);
     new Array:newParams = ParamsController_Param_ListFromNativeParams(Arg_Params, paramsCount);
 
     MenuController_AddParams(controller, newParams);
