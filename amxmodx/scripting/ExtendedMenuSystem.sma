@@ -16,7 +16,7 @@ public plugin_precache() {
 
     Forwards_RegAndCall("EMS_OnInit", ET_IGNORE);
     
-    Menu_LoadFromFolder(CfgUtils_GetPath(EMS_CONFIG_ROOT_DIRECTORY));
+    Menu_LoadFromFolder(CfgUtils_GetPath("Menus"));
 
     Forwards_RegAndCall("EMS_OnLoaded", ET_IGNORE);
 }
