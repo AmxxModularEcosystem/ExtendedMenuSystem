@@ -50,11 +50,11 @@ T_Menu:Menu_FindByCommand(const command[]) {
 }
 
 Menu_Build(const playerIndex, const T_Menu:menu) {
-    log_amx("[DBG] Menu_Build(%n, %d)", playerIndex, menu);
     new menuObject[S_Menu];
     Menu_Get(menu, menuObject);
 
     new title[EMS_MENU_TITLE_MAX_LEN];
+    copy(title, charsmax(title), menuObject[Menu_Title]);
     Menu_CallMakeTitle(menuObject, title);
 
     new menuHandler = menu_create(title, "@Menu_Handle");
