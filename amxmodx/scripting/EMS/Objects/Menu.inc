@@ -70,7 +70,7 @@ Menu_Build(const playerIndex, const T_Menu:menu) {
 }
 
 @Menu_Handle(const playerIndex, const menu, const item) {
-    new command[EMS_MENU_COMMAND_MAX_LEN];
+    static command[EMS_MENU_ITEM_COMMAND_MAX_LEN];
     menu_item_getinfo(menu, item, _, command, charsmax(command));
 
     if (command[0] != EOS) {

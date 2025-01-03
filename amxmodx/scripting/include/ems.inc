@@ -56,6 +56,13 @@ stock const EMS_CONFIG_MENUS_DIRECTORY[] = "Menus";
 stock const EMS_DEFAULT_CONTROLLER_KEY[] = "Default";
 
 /**
+ * Название контроллера меню выбора игрока.
+ * 
+ * Контроллер будет зарегистрирован системой перед вызовом EMS_OnInit.
+ */
+stock const EMS_PLAYERS_CONTROLLER_KEY[] = "Players";
+
+/**
  * Название типа параметра списка пунктов меню.
  * 
  * Тип изначально создаётся под контроллер по умолчанию, но можно использовать и в других местах.
