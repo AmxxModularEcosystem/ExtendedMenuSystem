@@ -50,21 +50,34 @@ T_Menu:Menu_FindByCommand(const command[]) {
 }
 
 Menu_Build(const playerIndex, const T_Menu:menu) {
+    log_amx("[DBG] Menu_Build(%n, %d)", playerIndex, menu);
     new menuObject[S_Menu];
     Menu_Get(menu, menuObject);
 
     new title[EMS_MENU_TITLE_MAX_LEN];
     Menu_CallMakeTitle(menuObject, title);
 
-    new menuHandler = menu_create(title, "TODO"); // TODO
+    new menuHandler = menu_create(title, "@Menu_Handle");
     Menu_CallCreate(menuObject, menuHandler);
 
     // TODO Посмотреть будут ли такие проблемы на версии 1.10.0. Если нет, то переходить на неё.
     new controllerInstance[S_MenuControllerInstance];
-    controllerInstance = menuObject[Menu_ControllerInstance];
+    controllerInstance[MenuControllerInstance_MenuController] = menuObject[Menu_ControllerInstance][MenuControllerInstance_MenuController];
+    controllerInstance[MenuControllerInstance_Params] = menuObject[Menu_ControllerInstance][MenuControllerInstance_Params];
     MenuControllerInstance_Use(controllerInstance, playerIndex, menuHandler);
 
     return menuHandler;
+}
+
+@Menu_Handle(const playerIndex, const menu, const item) {
+    new command[EMS_MENU_COMMAND_MAX_LEN];
+    menu_item_getinfo(menu, item, _, command, charsmax(command));
+
+    if (command[0] != EOS) {
+        client_cmd(playerIndex, command);
+    }
+
+    menu_destroy(menu);
 }
 
 Menu_CallMakeTitle(const menuObject[], title[]) {

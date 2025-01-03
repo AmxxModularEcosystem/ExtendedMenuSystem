@@ -23,7 +23,7 @@ MenuControllerInstance_Use(const instance[S_MenuControllerInstance], const playe
 MenuControllerInstance_Make(const T_MenuController:controller, const Trie:params) {
     new instance[S_MenuControllerInstance];
 
-    if (controller == Invalid_MenuController) {
+    if (!MenuController_IsValid(controller)) {
         abort(AMX_ERR_PARAMS, "controller is an invalid menu controller handler (%d).", controller);
         return instance;
     }

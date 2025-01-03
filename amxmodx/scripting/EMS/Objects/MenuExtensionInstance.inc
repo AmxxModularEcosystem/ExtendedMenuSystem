@@ -88,8 +88,13 @@ Array:MenuExtensionInstance_MakeListFromJson(const JSON:extensionsJson) {
 }
 
 Array:JsonObject_GetMenuExtensionInstances(const JSON:jsonObject, const key[], const bool:dotNot = false) {
+    if (!json_object_has_value(jsonObject, key, JSONArray, dotNot)) {
+        return Invalid_Array;
+    }
+
     new JSON:extensionsJson = json_object_get_value(jsonObject, key, dotNot);
     new Array:instances = MenuExtensionInstance_MakeListFromJson(extensionsJson);
     json_free(extensionsJson);
+    
     return instances;
 }

@@ -4,6 +4,7 @@
 #include "EMS/Objects/MenuExtension"
 
 API_MenuExtension_Init() {
+    // TODO
     // register_native("MenuExtension_Register", "@_MenuExtension_Register");
     // register_native("MenuExtension_AddParams", "@_MenuExtension_AddParams");
 }

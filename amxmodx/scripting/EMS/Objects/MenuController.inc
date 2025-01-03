@@ -63,6 +63,13 @@ T_MenuController:MenuController_Find(const controllerKey[], const bool:orFail = 
     return T_MenuController:ArrayMapGetIndex(MenuControllers, controllerKey);
 }
 
+bool:MenuController_IsValid(const T_MenuController:controller) {
+    return (
+        _:controller >= 0
+        || _:controller < ArrayMapSize(MenuControllers)
+    );
+}
+
 MenuController_Get(const T_MenuController:controller, controllerObject[S_MenuController]) {
     ArrayMapGetArray(MenuControllers, controller, controllerObject);
 }
