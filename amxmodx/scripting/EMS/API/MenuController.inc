@@ -4,8 +4,8 @@
 #include "EMS/Objects/MenuController"
 
 API_MenuController_Init() {
-    register_native("MenuController_Register", "@_MenuController_Register");
-    register_native("MenuController_AddParams", "@_MenuController_AddParams");
+    register_native("EMS_MenuController_Register", "@_MenuController_Register");
+    register_native("EMS_MenuController_AddParams", "@_MenuController_AddParams");
 }
 
 T_MenuController:@_MenuController_Register(const pluginIndex) {
